@@ -49,11 +49,11 @@ namespace glshader::process
 
         compiled_shader load_opengl_binary(const files::path & file, uint32_t type, const std::vector<files::path> & includes, const std::vector<definition> & definitions, const std::string & prefix, const std::string & postfix)
         {
-            thread_local uint32_t(*glCreateShaderProgramv)(uint32_t, int, const char**) = nullptr;
-            thread_local void (*glGetProgramiv)(uint32_t, uint32_t, const int*) = nullptr;
-            thread_local void (*glGetProgramInfoLog)(uint32_t, int, int*, char*) = nullptr;
-            thread_local void (*glDeleteProgram)(uint32_t) = nullptr;
-            thread_local void (*glGetProgramBinary)(uint32_t, int, int*, uint32_t*, void*) = nullptr;
+            uint32_t(*glCreateShaderProgramv)(uint32_t, int, const char**) = nullptr;
+            void (*glGetProgramiv)(uint32_t, uint32_t, const int*) = nullptr;
+            void (*glGetProgramInfoLog)(uint32_t, int, int*, char*) = nullptr;
+            void (*glDeleteProgram)(uint32_t) = nullptr;
+            void (*glGetProgramBinary)(uint32_t, int, int*, uint32_t*, void*) = nullptr;
 
             preprocess_file_info info{
               includes, definitions, false, false, file
@@ -61,21 +61,19 @@ namespace glshader::process
             processed_file processed = glsp::preprocess_file(info);
 
             // loader should be initialized by glsp::preprocess_file.
-            if (lgl::valid() && !(glCreateShaderProgramv && glGetProgramiv && glGetProgramInfoLog && glDeleteProgram && glGetProgramBinary))
+            if (lgl::valid())
             {
-                glCreateShaderProgramv = reinterpret_cast<decltype(glCreateShaderProgramv)>(lgl::load_function("glCreateShaderProgramv"));
-                glGetProgramiv = reinterpret_cast<decltype(glGetProgramiv)>(lgl::load_function("glGetProgramiv"));
-                glGetProgramInfoLog = reinterpret_cast<decltype(glGetProgramInfoLog)>(lgl::load_function("glGetProgramInfoLog"));
-                glDeleteProgram = reinterpret_cast<decltype(glDeleteProgram)>(lgl::load_function("glDeleteProgram"));
-                glGetProgramBinary = reinterpret_cast<decltype(glGetProgramBinary)>(lgl::load_function("glGetProgramBinary"));
-            }
-            else if (!lgl::valid())
-            {
-                glCreateShaderProgramv = nullptr;
-                glGetProgramiv = nullptr;
-                glGetProgramInfoLog = nullptr;
-                glDeleteProgram = nullptr;
-                glGetProgramBinary = nullptr;
+                static auto glCreateShaderProgramv_ = reinterpret_cast<decltype(glCreateShaderProgramv)>(lgl::load_function("glCreateShaderProgramv"));
+                static auto glGetProgramiv_ = reinterpret_cast<decltype(glGetProgramiv)>(lgl::load_function("glGetProgramiv"));
+                static auto glGetProgramInfoLog_ = reinterpret_cast<decltype(glGetProgramInfoLog)>(lgl::load_function("glGetProgramInfoLog"));
+                static auto glDeleteProgram_ = reinterpret_cast<decltype(glDeleteProgram)>(lgl::load_function("glDeleteProgram"));
+                static auto glGetProgramBinary_ = reinterpret_cast<decltype(glGetProgramBinary)>(lgl::load_function("glGetProgramBinary"));
+
+                glCreateShaderProgramv = glCreateShaderProgramv_;
+                glGetProgramiv = glGetProgramiv_;
+                glGetProgramInfoLog = glGetProgramInfoLog_;
+                glDeleteProgram = glDeleteProgram_;
+                glGetProgramBinary = glGetProgramBinary_;
             }
 
             compiled_shader result;

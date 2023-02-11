@@ -631,18 +631,18 @@ namespace glshader::process
     {
       constexpr uint32_t NUM_EXTENSIONS = 0x821D;
       constexpr uint32_t EXTENSIONS = 0x1F03;
-      thread_local const void (*glGetIntegerv)(uint32_t, int*) = nullptr;
-      thread_local const uint8_t* (*glGetStringi)(uint32_t, int) = nullptr;
+      const void (*glGetIntegerv)(uint32_t, int*) = nullptr;
+      const uint8_t* (*glGetStringi)(uint32_t, int) = nullptr;
 
-      thread_local bool gl_initialized = false;
-      if (!gl_initialized || !lgl::valid())
+      if (!lgl::valid())
       {
         lgl::reload();
-        if (!glGetIntegerv) glGetIntegerv = reinterpret_cast<decltype(glGetIntegerv)>(lgl::load_function("glGetIntegerv"));
-        if (!glGetStringi)  glGetStringi = reinterpret_cast<decltype(glGetStringi)>(lgl::load_function("glGetStringi"));
+        static auto glGetIntegerv_ = reinterpret_cast<decltype(glGetIntegerv)>(lgl::load_function("glGetIntegerv"));
+        static auto glGetStringi_ = reinterpret_cast<decltype(glGetStringi)>(lgl::load_function("glGetStringi"));
+        glGetIntegerv = glGetIntegerv_;
+        glGetStringi = glGetStringi_;
         if (glGetIntegerv && glGetStringi)
         {
-          gl_initialized = true;
           int n;
           glGetIntegerv(NUM_EXTENSIONS, &n);
           for (auto i = 0; i < n; ++i)

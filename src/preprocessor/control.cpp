@@ -11,7 +11,7 @@ namespace glshader::process::impl::control
       if (processed.minified)
         return "";
 
-        thread_local struct GetStringFunction
+        static struct GetStringFunction
         {
         public:
             GetStringFunction() : glGetStringFunc(nullptr), ns('\0')

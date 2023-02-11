@@ -78,7 +78,7 @@ namespace glshader::process::impl::loader
         void* (*get_ctx_fun)() = nullptr;
 
 #ifdef __APPLE__
-        constexpr thread_local std::array<const char *, 4> libs ={
+        constexpr static std::array<const char *, 4> libs ={
             "../Frameworks/OpenGL.framework/OpenGL",
             "/Library/Frameworks/OpenGL.framework/OpenGL",
             "/System/Library/Frameworks/OpenGL.framework/OpenGL",
@@ -101,7 +101,7 @@ namespace glshader::process::impl::loader
 
     function_loader& get_loader()
     {
-        thread_local function_loader l;
+        static function_loader l;
         return l;
     }
 
