@@ -14,6 +14,7 @@
 #include <vector>
 #include <queue>
 #include <sstream>
+#include <cstdint>
 
 namespace glshader::process::compress::huffman
 {
